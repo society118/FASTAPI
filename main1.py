@@ -1,8 +1,9 @@
 from typing import Annotated
-from sqlalchemy.ext.asyncio import  create_async_engine,async_sessionmaker,AsyncSession
+from sqlalchemy.ext.asyncio import  create_async_engine,async_sessionmaker,AsyncSession,session
 from sqlalchemy.orm import DeclarativeBase,Mapped,mapped_column
 from fastapi import FastAPI,Depends
 import uvicorn
+from sqlalchemy import select
 from pydantic import BaseModel
 app = FastAPI()
 
@@ -42,7 +43,9 @@ async def setup_database():
 
 @app.get("/books")
 async def get_books():
-    pass
+    query = select(BookModel)
+    result = await session.execute(query)
+    return result.scalars().all
 
 @app.post("/books")
 async def add_books(data:BookSchema,session:SessionDep):
